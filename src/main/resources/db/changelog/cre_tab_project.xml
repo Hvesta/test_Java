@@ -1,0 +1,38 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
+    <changeSet  id="2"  author="omnilog">
+        <createTable  tableName="project">
+            <column  name="id"  type="int"  autoIncrement="true">
+                <constraints  primaryKey="true"  nullable="false"/>
+            </column>
+            <column  name="name"  type="varchar(150)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="start_date"  type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column  name="end_date"  type="date">
+            </column>
+            <column  name="client_id"  type="int">
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="client_id"
+        baseTableName="project"
+        constraintName="fk_client_project"
+        referencedColumnNames="id"
+        referencedTableName="client"
+        validate="true"/>
+    </changeSet>
+
+    <changeSet id="2_insert" author="omnilog">
+        <loadData tableName="project" file="/db/changelog/data/project.csv" separator=",">
+            <column type="NUMERIC" name="id"/>
+            <column type="string" name="name"/>
+            <column type="date" name="start_date"/>
+            <column type="date" name="end_date"/>
+            <column type="NUMERIC" name="client_id"/>
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

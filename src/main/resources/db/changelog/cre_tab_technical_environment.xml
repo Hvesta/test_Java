@@ -1,0 +1,33 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
+    <changeSet  id="4"  author="omnilog">
+        <createTable  tableName="technical_environment">
+            <column  name="project_id"  type="int" >
+                <constraints nullable="false"/>
+            </column>
+            <column  name="technology_id"  type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="project_id"
+                                 baseTableName="technical_environment"
+                                 constraintName="fk_technical_environment_project"
+                                 referencedColumnNames="id"
+                                 referencedTableName="project"
+                                 validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="technology_id"
+                                 baseTableName="technical_environment"
+                                 constraintName="fk_technical_environment_technology"
+                                 referencedColumnNames="id"
+                                 referencedTableName="technology"
+                                 validate="true"/>
+    </changeSet>
+    <changeSet id="4_insert" author="omnilog">
+        <loadData tableName="technical_environment" file="/db/changelog/data/projects_technos.csv" separator=",">
+            <column type="NUMERIC" name="project_id"/>
+            <column type="NUMERIC" name="technology_id"/>
+        </loadData>
+    </changeSet>
+</databaseChangeLog>
