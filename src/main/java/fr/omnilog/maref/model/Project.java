@@ -19,6 +19,8 @@ public class Project {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
+    //TODO : add technologies here
+
     public Integer getId() {
         return id;
     }
