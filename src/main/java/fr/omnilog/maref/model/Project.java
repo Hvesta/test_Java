@@ -1,10 +1,8 @@
 package fr.omnilog.maref.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -19,7 +17,8 @@ public class Project {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    //TODO : add technologies here
+    @OneToMany
+    private List<Technology> technologies;
 
     public Integer getId() {
         return id;
@@ -61,16 +60,20 @@ public class Project {
         this.client = client;
     }
 
+    public List<Technology> getTechnologies() { return technologies; }
+
+    public void setTechnologies(List<Technology> technologies) { this.technologies = technologies; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
-        return id.equals(project.id) && name.equals(project.name) && startDate.equals(project.startDate) && Objects.equals(endDate, project.endDate) && client.equals(project.client);
+        return id.equals(project.id) && name.equals(project.name) && startDate.equals(project.startDate) && Objects.equals(endDate, project.endDate) && client.equals(project.client) && technologies.equals(project.technologies);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, startDate, endDate, client);
+        return Objects.hash(id, name, startDate, endDate, client, technologies);
     }
 }
