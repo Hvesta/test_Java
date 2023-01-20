@@ -4,15 +4,15 @@ import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
 
+
 @Entity
 public class Technology {
     @Id
     private Integer id;
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
+    @ManyToMany(mappedBy = "technical_environment")
+    private Set<Project> projects;
 
     public Integer getId() {
         return id;
@@ -30,20 +30,28 @@ public class Technology {
         this.name = name;
     }
 
-    public Project getProject() { return project; }
 
-    public void setProject(Project project) { this.project = project; }
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
+    }
+
+
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Technology that = (Technology) o;
-        return id.equals(that.id) && name.equals(that.name) == project.equals(that.project);
+        return id.equals(that.id) && name.equals(that.name) == projects.equals(that.projects);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, project);
+        return Objects.hash(id, name, projects);
     }
 }

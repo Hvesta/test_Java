@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Project {
@@ -16,8 +17,12 @@ public class Project {
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
-
-    @OneToMany
+    @ManyToMany
+    @JoinTable(
+            name = "technical_environment",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "technology_id")
+    )
     private List<Technology> technologies;
 
     public Integer getId() {
@@ -60,9 +65,17 @@ public class Project {
         this.client = client;
     }
 
-    public List<Technology> getTechnologies() { return technologies; }
+    public List<Technology> getTechnologies() {
+        return technologies;
+    }
 
-    public void setTechnologies(List<Technology> technologies) { this.technologies = technologies; }
+    public void setTechnologies(List<Technology> technologies) {
+        this.technologies = technologies;
+    }
+
+
+
+
 
     @Override
     public boolean equals(Object o) {

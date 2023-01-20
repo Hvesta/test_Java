@@ -1,11 +1,9 @@
 package fr.omnilog.maref.controller;
 
 
-import fr.omnilog.maref.dto.ClientDTO;
+import com.sun.istack.NotNull;
 import fr.omnilog.maref.dto.ProjectDTO;
-import fr.omnilog.maref.model.Client;
 import fr.omnilog.maref.model.Project;
-import fr.omnilog.maref.service.ClientService;
 import fr.omnilog.maref.service.ProjectService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +40,12 @@ public class ProjectController {
         return ResponseEntity.ok(projects.stream()
                 .map(project -> modelMapper.map(project, ProjectDTO.class))
                 .collect(Collectors.toList()));
+    }
+
+    @PostMapping
+    @ResponseBody
+    public ResponseEntity<Void> createProjects(@Valid @NotNull @RequestParam ProjectDTO projectDTO) {
+        projectService.createProject(projectDTO);
+        return ResponseEntity.ok().build();
     }
 }
