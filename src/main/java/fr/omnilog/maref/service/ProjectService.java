@@ -1,6 +1,7 @@
 package fr.omnilog.maref.service;
 
 import fr.omnilog.maref.dto.ProjectDTO;
+import fr.omnilog.maref.helper.DateInterval;
 import fr.omnilog.maref.model.Client;
 import fr.omnilog.maref.model.Project;
 import fr.omnilog.maref.model.Technology;
@@ -11,11 +12,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final TechnologyService technologyService;
     private final ClientService clientService;
+
 
     public ProjectService(ProjectRepository projectRepository, TechnologyService technologyService, ClientService clientService) {
         this.projectRepository = projectRepository;
@@ -38,7 +41,7 @@ public class ProjectService {
         var client = clientService.getClientById(projectDTO.getClientId());
         //Mapping du DTO en Entity avant la sauvegarde
         var project = mappingProjectDTOtoEntity(projectDTO, existingTechnologies, client);
-        // save
+        // sauvegarde
         projectRepository.save(project);
 
     }
@@ -47,20 +50,28 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public List<Project> findByProjectSize(String projectSize) {
-        //TODO : ?????
-        List<Project> projects = projectRepository.findAll();
 
+    public List<Project> findByProjectSize(String projectSize) {
+        // Des requêtes customs via JPA seraient plus performantes car les calculs seraient faits côté base de données
+        List<Project> projects = projectRepository.findAll();
         if ("small".contentEquals(projectSize)) {
             projects = projects
                     .stream()
-                    .filter(p -> p.getStartDate().isAfter(LocalDate.now().minusMonths(3)))
+                    .filter(p -> DateInterval.isSmallProject(p.getStartDate(), p.getEndDate()))
                     .collect(Collectors.toList());
         } else if ("medium".contentEquals(projectSize)) {
+            projects = projects
+                    .stream()
+                    .filter(p -> DateInterval.isMediumProject(p.getStartDate(), p.getEndDate()))
+                    .collect(Collectors.toList());
 
         } else if ("large".contentEquals(projectSize)) {
-
+            projects = projects
+                    .stream()
+                    .filter(p -> DateInterval.isLargeProject(p.getStartDate(), p.getEndDate()))
+                    .collect(Collectors.toList());
         }
+
         return projects;
     }
 

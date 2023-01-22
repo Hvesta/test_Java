@@ -11,7 +11,7 @@ public class Technology {
     private Integer id;
     private String name;
 
-    @ManyToMany(mappedBy = "technical_environment")
+    @ManyToMany(mappedBy = "technologies")
     private Set<Project> projects;
 
     public Integer getId() {
