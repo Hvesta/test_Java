@@ -27,7 +27,7 @@ public class ProjectService {
     }
 
 
-    public void createProject(ProjectDTO projectDTO) {
+    public Project createProject(ProjectDTO projectDTO) {
         // validation date de début et date de fin
         if (projectDTO.getEndDate() != null) {
             checkDatesInterval(projectDTO.getStartDate(), projectDTO.getEndDate());
@@ -42,14 +42,12 @@ public class ProjectService {
         //Mapping du DTO en Entity avant la sauvegarde
         var project = mappingProjectDTOtoEntity(projectDTO, existingTechnologies, client);
         // sauvegarde
-        projectRepository.save(project);
-
+        return projectRepository.save(project);
     }
 
     public List<Project> findAll() {
         return projectRepository.findAll();
     }
-
 
     public List<Project> findByProjectSize(String projectSize) {
         // Des requêtes customs via JPA seraient plus performantes car les calculs seraient faits côté base de données

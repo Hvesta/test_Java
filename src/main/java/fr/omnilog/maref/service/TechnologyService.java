@@ -16,6 +16,10 @@ public class TechnologyService {
     }
 
     public List<Technology> getExistingTechnologies(List<String> technologies) {
-        return technologyRepository.findExistingTechnologies(technologies);
+        if ( technologies != null) {
+            return technologyRepository.findExistingTechnologies(technologies);
+        } else {
+            throw new RuntimeException("Pas de technologies renseignées !");
+        }
     }
 }
