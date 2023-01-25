@@ -1,8 +1,8 @@
 package fr.omnilog.maref.model;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 
 @Entity
@@ -11,8 +11,9 @@ public class Technology {
     private Integer id;
     private String name;
 
+
     @ManyToMany(mappedBy = "technologies")
-    private Set<Project> projects;
+    private List<Project> projects;
 
     public Integer getId() {
         return id;
@@ -30,17 +31,13 @@ public class Technology {
         this.name = name;
     }
 
-
-    public Set<Project> getProjects() {
+    public List<Project> getProjects() {
         return projects;
     }
 
-    public void setProjects(Set<Project> projects) {
+    public void setProjects(List<Project> projects) {
         this.projects = projects;
     }
-
-
-
 
     @Override
     public boolean equals(Object o) {

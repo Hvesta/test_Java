@@ -15,9 +15,9 @@ public class TechnologyService {
         this.technologyRepository = technologyRepository;
     }
 
-    public List<Technology> getExistingTechnologies(List<String> technologies) {
+    public List<Technology> getMatchingTechnologies(List<String> technologies) {
         if ( technologies != null) {
-            return technologyRepository.findExistingTechnologies(technologies);
+            return technologyRepository.findMatchingTechnologies(technologies);
         } else {
             throw new RuntimeException("Pas de technologies renseignées !");
         }

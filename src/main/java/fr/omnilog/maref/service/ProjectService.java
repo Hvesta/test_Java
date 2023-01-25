@@ -28,16 +28,17 @@ public class ProjectService {
 
 
     public Project createProject(ProjectDTO projectDTO) {
-        // validation date de début et date de fin
+        // si une date de fin est renseignée
         if (projectDTO.getEndDate() != null) {
+            // validation que la date de fin est bien après la date de début
             checkDatesInterval(projectDTO.getStartDate(), projectDTO.getEndDate());
         }
         // validation de l'existence des technologies
-        List<Technology> existingTechnologies = technologyService.getExistingTechnologies(projectDTO.getTechnologies());
-        if(projectDTO.getTechnologies().size() != existingTechnologies.size()) {
+        List<Technology> existingTechnologies = technologyService.getMatchingTechnologies(projectDTO.getTechnologies());
+        if (projectDTO.getTechnologies().size() != existingTechnologies.size()) {
             throw new RuntimeException("Erreur : une technologie n'existe pas");
         }
-        // récupération du client, si client non trouvé une exception sera levée
+        // vérification du client, si client non trouvé une exception sera levée
         var client = clientService.getClientById(projectDTO.getClientId());
         //Mapping du DTO en Entity avant la sauvegarde
         var project = mappingProjectDTOtoEntity(projectDTO, existingTechnologies, client);
@@ -62,7 +63,6 @@ public class ProjectService {
                     .stream()
                     .filter(p -> DateInterval.isMediumProject(p.getStartDate(), p.getEndDate()))
                     .collect(Collectors.toList());
-
         } else if ("large".contentEquals(projectSize)) {
             projects = projects
                     .stream()
@@ -79,12 +79,12 @@ public class ProjectService {
         }
     }
 
-    private Project mappingProjectDTOtoEntity(ProjectDTO projectDTO, List<Technology> technosList, Client client) {
+    private Project mappingProjectDTOtoEntity(ProjectDTO projectDTO, List<Technology> techsList, Client client) {
         var newProject = new Project();
         newProject.setName(projectDTO.getName());
         newProject.setStartDate(projectDTO.getStartDate());
         newProject.setEndDate(projectDTO.getEndDate());
-        newProject.setTechnologies(technosList);
+        newProject.setTechnologies(techsList);
         newProject.setClient(client);
         return newProject;
     }

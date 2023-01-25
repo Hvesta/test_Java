@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface TechnologyRepository extends JpaRepository<Technology, Integer> {
     @Query("SELECT t FROM Technology t WHERE t.name IN (:technologies)")
-    List<Technology> findExistingTechnologies(List<String> technologies);
+    List<Technology> findMatchingTechnologies(List<String> technologies);
 }

@@ -12,8 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +43,119 @@ class ProjectServiceTest {
     @BeforeEach
     public void before() {
 
+    }
+
+
+    @Test
+    public void findAllTest() {
+        createAllProjects();
+        assertIterableEquals(List.of(smallProject, mediumProject, largeProject, mediumProjectTwo, largeProjectTwo), projectService.findAll());
+    }
+
+    @Test
+    public void findByProjectSizeWithSmallprojects() {
+        createAllProjects();
+        List<Project> smallProjects = projectService.findByProjectSize("small");
+        assertEquals(1, smallProjects.size());
+    }
+
+    @Test
+    public void findByProjectSizeWithMediumProjects() {
+        createAllProjects();
+        List<Project> mediumProjects = projectService.findByProjectSize("medium");
+        assertEquals(2, mediumProjects.size());
+    }
+
+    @Test
+    public void findByProjectSizeWithLargeProjects() {
+        createAllProjects();
+        List<Project> largeProjects = projectService.findByProjectSize("large");
+        assertEquals(2, largeProjects.size());
+    }
+
+
+    @Test
+    public void shouldCreateANewProjectOK() {
+        //given
+        List<String> technologies = createTechnologiesListForNewProject();
+        String projectName = "Mon nouveau projet DTO";
+        int clientId = 1235698;
+        LocalDate startDate = LocalDate.of(2022, 12, 9);
+        LocalDate endDate = LocalDate.of(2023, 2, 4);
+        var newProjetDTO = createProjectDTO(0, projectName, startDate, endDate, clientId, technologies);
+
+        var totoro = new Client();
+        totoro.setId(clientId);
+        totoro.setName("Totoro");
+
+        List<Technology> matchingTechnologies = createMatchingTechnologiesProjectOK();
+
+        var expectedProject = createProject(6, projectName, startDate, endDate);
+        expectedProject.setClient(totoro);
+        expectedProject.setTechnologies(matchingTechnologies);
+
+        //when
+        Mockito.when(technologyService.getMatchingTechnologies(technologies)).thenReturn(matchingTechnologies);
+
+        Mockito.when(clientService.getClientById(1235698)).thenReturn(totoro);
+
+        Mockito.when(projectRepository.save(any(Project.class))).thenReturn(expectedProject);
+
+        //then
+        var project  = projectService.createProject(newProjetDTO);
+        assertNotNull(project);
+        assertEquals(project.getId(), 6);
+        assertEquals(project.getClient().getId(), clientId);
+        Mockito.verify(projectRepository, Mockito.times(1)).save(any(Project.class));
+        Mockito.verifyNoMoreInteractions(projectRepository);
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionBadArgumentForTechnos() {
+        //given
+        List<String> technologies = createTechnologiesListForNewProject();
+        String projectName = "Mon nouveau projet DTO";
+        int clientId = 1235698;
+        LocalDate startDate = LocalDate.of(2022, 12, 9);
+        LocalDate endDate = LocalDate.of(2023, 2, 4);
+        var newProjetDTO = createProjectDTO(0, projectName, startDate, endDate, clientId, technologies);
+
+        var totoro = new Client();
+        totoro.setId(clientId);
+        totoro.setName("Totoro");
+
+        List<Technology> matchingTechnologies = new ArrayList<>(); // the techs were not found in DB
+
+        //when
+        Mockito.when(technologyService.getMatchingTechnologies(technologies)).thenReturn(matchingTechnologies);
+
+        //then
+        assertThrows(RuntimeException.class, () -> {
+            projectService.createProject(newProjetDTO);
+        });
+    }
+
+    @Test
+    public void shouldThrowRuntimeExceptionBadArgumentForClient() {
+        //given
+        List<String> technologies = createTechnologiesListForNewProject();
+        String projectName = "Mon nouveau projet DTO";
+        int clientId = 1235698;
+        LocalDate startDate = LocalDate.of(2022, 12, 9);
+        LocalDate endDate = LocalDate.of(2023, 02, 4);
+        var newProjetDTO = createProjectDTO(0, projectName, startDate, endDate, clientId, technologies);
+
+        List<Technology> existingTechnologies = createMatchingTechnologiesProjectOK();
+
+        //when
+        Mockito.when(technologyService.getMatchingTechnologies(technologies)).thenReturn(existingTechnologies);
+
+        Mockito.when(clientService.getClientById(123)).thenReturn(null);
+
+        //then
+        assertThrows(RuntimeException.class, () -> {
+            projectService.createProject(newProjetDTO);
+        });
     }
 
     private void createAllProjects(){
@@ -85,70 +196,7 @@ class ProjectServiceTest {
         return listTechnos;
     }
 
-
-    @Test
-    public void findAllTest() {
-        createAllProjects();
-        assertIterableEquals(List.of(smallProject, mediumProject, largeProject, mediumProjectTwo, largeProjectTwo), projectService.findAll());
-    }
-
-    @Test
-    public void findByProjectSizeWithSmallprojects() {
-        createAllProjects();
-        List<Project> smallProjects = projectService.findByProjectSize("small");
-        assertEquals(1, smallProjects.size());
-    }
-
-    @Test
-    public void findByProjectSizeWithMediumProjects() {
-        createAllProjects();
-        List<Project> mediumProjects = projectService.findByProjectSize("medium");
-        assertEquals(2, mediumProjects.size());
-    }
-
-    @Test
-    public void findByProjectSizeWithLargeProjects() {
-        createAllProjects();
-        List<Project> largeProjects = projectService.findByProjectSize("large");
-        assertEquals(2, largeProjects.size());
-    }
-
-
-    @Test
-    public void shouldCreateANewProjectOK() {
-        //given
-        List<String> technologies = createTechnologiesListForNewProject();
-        String projectName = "Mon nouveau projet DTO";
-        int clientId = 1235698;
-        LocalDate startDate = LocalDate.of(2022, 12, 9);
-        LocalDate endDate = LocalDate.of(2023, 02, 4);
-        var newProjetDTO = createProjectDTO(0, projectName, startDate, endDate, clientId, technologies);
-
-        var totoro = new Client();
-        totoro.setName("Totoro");
-
-        List<Technology> existingTechnologies = createExistingTechnologiesProjectOK();
-
-        var expectedProject = createProject(6, projectName, startDate, endDate);
-        expectedProject.setClient(totoro);
-        expectedProject.setTechnologies(existingTechnologies);
-
-        //when
-        Mockito.when(technologyService.getExistingTechnologies(technologies)).thenReturn(existingTechnologies);
-
-        Mockito.when(clientService.getClientById(1235698)).thenReturn(totoro);
-
-        Mockito.when(projectRepository.save(any(Project.class))).thenReturn(expectedProject);
-
-        //then
-        var project  = projectService.createProject(newProjetDTO);
-        assertNotNull(project);
-        assertEquals(project.getId(), 6);
-        Mockito.verify(projectRepository, Mockito.times(1)).save(any(Project.class));
-        Mockito.verifyNoMoreInteractions(projectRepository);
-    }
-
-    private List<Technology> createExistingTechnologiesProjectOK(){
+    private List<Technology> createMatchingTechnologiesProjectOK(){
         List<Technology> existingTechnologies = new ArrayList<>();
         Technology java = new Technology();
         java.setName("Java");
@@ -160,52 +208,4 @@ class ProjectServiceTest {
 
         return existingTechnologies;
     }
-
-    @Test
-    public void shouldThrowRuntimeExceptionBadArgumentForTechnos() {
-        //given
-        List<String> technologies = createTechnologiesListForNewProject();
-        String projectName = "Mon nouveau projet DTO";
-        int clientId = 1235698;
-        LocalDate startDate = LocalDate.of(2022, 12, 9);
-        LocalDate endDate = LocalDate.of(2023, 02, 4);
-        var newProjetDTO = createProjectDTO(0, projectName, startDate, endDate, clientId, technologies);
-
-        var totoro = new Client();
-        totoro.setName("Totoro");
-
-        List<Technology> existingTechnologies = new ArrayList<>(); // the techs were not found in DB
-
-        //when
-        Mockito.when(technologyService.getExistingTechnologies(technologies)).thenReturn(existingTechnologies);
-
-        //then
-        assertThrows(RuntimeException.class, () -> {
-            projectService.createProject(newProjetDTO);
-        });
-    }
-
-    @Test
-    public void shouldThrowRuntimeExceptionBadArgumentForClient() {
-        //given
-        List<String> technologies = createTechnologiesListForNewProject();
-        String projectName = "Mon nouveau projet DTO";
-        int clientId = 1235698;
-        LocalDate startDate = LocalDate.of(2022, 12, 9);
-        LocalDate endDate = LocalDate.of(2023, 02, 4);
-        var newProjetDTO = createProjectDTO(0, projectName, startDate, endDate, clientId, technologies);
-
-        List<Technology> existingTechnologies = createExistingTechnologiesProjectOK();
-
-        //when
-        Mockito.when(technologyService.getExistingTechnologies(technologies)).thenReturn(existingTechnologies);
-
-        Mockito.when(clientService.getClientById(123)).thenReturn(null);
-
-        //then
-        assertThrows(RuntimeException.class, () -> {
-            projectService.createProject(newProjetDTO);
-        });
-    }
-
 }
