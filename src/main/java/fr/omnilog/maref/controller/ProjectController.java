@@ -1,7 +1,7 @@
 package fr.omnilog.maref.controller;
 
 
-import com.sun.istack.NotNull;
+
 import fr.omnilog.maref.dto.ProjectDTO;
 import fr.omnilog.maref.model.Project;
 import fr.omnilog.maref.service.ProjectService;
@@ -11,12 +11,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
+
     private final ProjectService projectService;
 
     private final ModelMapper modelMapper;

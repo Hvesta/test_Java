@@ -42,9 +42,13 @@ public class Client {
 
     @Override
     public boolean equals(Object o) {
+        //compare les références mémoire
         if (this == o) return true;
+        //Compare le nom des classes
         if (o == null || getClass() != o.getClass()) return false;
+        //Cast l'objet o dans la type de l'entité
         Client client = (Client) o;
+        //Compare les propriétés qui font sens fonctionnellement, dans le cas ci-dessous l'ensemble des propriétés
         return id.equals(client.id) && name.equals(client.name) && Objects.equals(projects, client.projects);
     }
 

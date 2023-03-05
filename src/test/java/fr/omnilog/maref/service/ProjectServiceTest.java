@@ -73,6 +73,14 @@ class ProjectServiceTest {
         assertEquals(2, largeProjects.size());
     }
 
+    @Test
+    public void shouldReplaceNullEndateByLocalDateNow() {
+        createAllProjects();
+        List<Project> largeProjects = projectService.findByProjectSize("large");
+        assertEquals(LocalDate.now(), largeProjects.get(0).getEndDate());
+        assertEquals(LocalDate.now(), largeProjects.get(1).getEndDate());
+    }
+
 
     @Test
     public void shouldCreateANewProjectOK() {
@@ -157,6 +165,25 @@ class ProjectServiceTest {
             projectService.createProject(newProjetDTO);
         });
     }
+
+    @Test
+    public void shouldThrowRuntimeExceptionErrorEnddate() {
+        //given
+        List<String> technologies = createTechnologiesListForNewProject();
+        String projectName = "Mon projet";
+        int clientId = 5;
+        LocalDate startDate = LocalDate.of(2022, 12, 9);
+        LocalDate endDate = LocalDate.of(2021, 02, 4);
+        var newProjetDTO = createProjectDTO(0, projectName, startDate, endDate, clientId, technologies);
+
+        //then
+        assertThrows(RuntimeException.class, () -> {
+            projectService.createProject(newProjetDTO);
+        });
+    }
+
+
+
 
     private void createAllProjects(){
         smallProject = createProject(1, "smallProject", LocalDate.of(2020, 12, 9), LocalDate.of(2021, 03, 9));
